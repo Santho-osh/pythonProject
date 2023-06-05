@@ -790,12 +790,19 @@ import pyodbc
 # employee1 = Employee(1, 'Santhosh', 'SE')
 # employee1.printEmpDetails()
 
-a = [2, 3, 4, 5, 5, 5, 0, 1]
-b = set(a)
-pivot = max(b)
-first_pivot = a.index(pivot)
-while a[first_pivot] == a[first_pivot+1]:
-    if a[first_pivot] == a[first_pivot+1]:
-        first_pivot+=1
-print(first_pivot)
+# a = [2, 3, 4, 5, 5, 5, 0, 1]
+# b = set(a)
+# pivot = max(b)
+# first_pivot = a.index(pivot)
+# while a[first_pivot] == a[first_pivot+1]:
+#     if a[first_pivot] == a[first_pivot+1]:
+#         first_pivot+=1
+# print(first_pivot)
+
+a = [1, 2, 3, 4, None]
+n = 0
+while a[n]:
+    print(a[n])
+    n += 1
+
 
