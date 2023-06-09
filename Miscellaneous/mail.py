@@ -799,10 +799,120 @@ import pyodbc
 #         first_pivot+=1
 # print(first_pivot)
 
-a = [1, 2, 3, 4, None]
-n = 0
-while a[n]:
-    print(a[n])
-    n += 1
+# a = [1, 2, 3, 4, None]
+# n = 0
+# while a[n]:
+#     print(a[n])
+#     n += 1
+
+# import pyttsx3
+#
+# def text_to_speech(text):
+#     engine = pyttsx3.init()
+#     engine.say(text)
+#     engine.runAndWait()
+#
+# text_to_speech("Hello, how are you?")
+# from gensim import summarize
+#
+# def summarize_paragraph(paragraph):
+#     summary = (paragraph)
+#     return summary
+#
+# paragraph = """
+#     Machine learning is a form of artificial intelligence based on algorithms that are trained on data. These algorithms can detect patterns and learn how to make predictions and recommendations by processing data and experiences, rather than by receiving explicit programming instruction. The algorithms also adapt in response to new data and experiences to improve their efficacy over time. The volume and complexity of data that is now being generated, too vast for humans to reasonably reckon with, has increased the potential of machine learning, as well as the need for it. In the years since its widespread deployment, which began in the 1970s, machine learning has had impact in a number of industries, including achievements in medical-imaging analysis and high-resolution weather forecasting.
+#     """
+#
+# summary = summarize_paragraph(paragraph)
+# print(summary)
+# from sumy.parsers.plaintext import PlaintextParser
+# from sumy.nlp.tokenizers import Tokenizer
+# from sumy.summarizers.lsa import LsaSummarizer
+#
+# def summarize_paragraph(paragraph, num_sentences=3):
+#     parser = PlaintextParser.from_string(paragraph, Tokenizer("english"))
+#     summarizer = LsaSummarizer()
+#     summary = summarizer(parser.document, num_sentences)
+#     summarized_text = " ".join(str(sentence) for sentence in summary)
+#     return summarized_text
+#
+# paragraph = """
+#     Machine learning is a form of artificial intelligence based on algorithms that are trained on data. These algorithms can detect patterns and learn how to make predictions and recommendations by processing data and experiences, rather than by receiving explicit programming instruction. The algorithms also adapt in response to new data and experiences to improve their efficacy over time. The volume and complexity of data that is now being generated, too vast for humans to reasonably reckon with, has increased the potential of machine learning, as well as the need for it. In the years since its widespread deployment, which began in the 1970s, machine learning has had impact in a number of industries, including achievements in medical-imaging analysis and high-resolution weather forecasting.
+#     """
+#
+# summary = summarize_paragraph(paragraph)
+# print(summary)
+
+from nltk.corpus import stopwords
+from nltk.cluster.util import cosine_distance
+import numpy as np
+import networkx as nx
+
+
+def read_article(content):
+    sentences = content.split(". ")
+    sentences.pop()
+    return sentences
+
+
+def sentence_similarity(sent1, sent2, stopwords=None):
+    if stopwords is None:
+        stopwords = []
+
+    sent1 = [w.lower() for w in sent1]
+    sent2 = [w.lower() for w in sent2]
+
+    all_words = list(set(sent1 + sent2))
+
+    vector1 = [0] * len(all_words)
+    vector2 = [0] * len(all_words)
+
+    for w in sent1:
+        if w in stopwords:
+            continue
+        vector1[all_words.index(w)] += 1
+
+    for w in sent2:
+        if w in stopwords:
+            continue
+        vector2[all_words.index(w)] += 1
+
+    return 1 - cosine_distance(vector1, vector2)
+
+
+def build_similarity_matrix(sentences, stopwords):
+    similarity_matrix = np.zeros((len(sentences), len(sentences)))
+
+    for i in range(len(sentences)):
+        for j in range(len(sentences)):
+            if i == j:
+                continue
+            similarity_matrix[i][j] = sentence_similarity(sentences[i], sentences[j], stopwords)
+
+    return similarity_matrix
+
+
+def generate_summary(content, top_n=5):
+    stop_words = stopwords.words('english')
+    summarize_text = []
+
+    sentences = read_article(content)
+    sentence_similarity_matrix = build_similarity_matrix(sentences, stop_words)
+    sentence_similarity_graph = nx.from_numpy_array(sentence_similarity_matrix)
+    scores = nx.pagerank(sentence_similarity_graph)
+    ranked_sentences = sorted(((scores[i], s) for i, s in enumerate(sentences)), reverse=True)
+
+    for i in range(top_n):
+        summarize_text.append(ranked_sentences[i][1])
+
+    return ". ".join(summarize_text)
+
+
+# Example usage
+content = """Artificial intelligence is used in many different ways. One way it is used is in self-driving cars. The car uses sensors to gather information about its surroundings and then uses artificial intelligence to process that information and make decisions. This helps the car to avoid accidents and make driving more efficient. Artificial intelligence is also used in medical diagnosis, pattern recognition, and weather forecasting. Despite the many concerns that have been raised about artificial intelligence, it is clear that this technology can be used to benefit humanity in a number of ways.
+From improving our understanding of the universe to creating more efficient systems and processes, artificial intelligence has the potential to change the world as we know it. As we continue to develop this technology, it is important that we do so with caution and care, ensuring that we are always aware of the risks involved. With responsible development, artificial intelligence could help us achieve great things."""
+summary = generate_summary(content, top_n=3)
+print(summary)
+
 
 
