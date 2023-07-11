@@ -90,6 +90,13 @@ class LinkedList:
 
         self.head = previous
 
+    def display(self):
+        current = self.head
+        while current:
+            print(current.data + '->', end='')
+            current = current.nextvalue
+        print('Null')
+
 
 
 numbers = LinkedList()
@@ -104,6 +111,7 @@ numbers.insert('8', '9')
 print(numbers)
 numbers.reverse()
 print(numbers)
+numbers.display()
 
 
 
